@@ -1,0 +1,6 @@
+### Получить всех сотрудников
+GET http://localhost:8080/employees
+### Создать сотрудника 1
+POST http://localhost:8080/employees
+Content-Type: application/json
+
