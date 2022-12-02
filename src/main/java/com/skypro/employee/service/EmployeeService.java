@@ -2,7 +2,10 @@ package com.skypro.employee.service;
 
 import com.skypro.employee.model.Employee;
 import com.skypro.employee.record.EmployeeRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,41 +19,45 @@ public class EmployeeService {
     }
 
     public Employee addEmployee(EmployeeRequest employeeRequest) {
-        if (employeeRequest.getFirstName() == null || employeeRequest.getLastName() == null) {
-            throw new IllegalArgumentException("Employee name should be set");
+        if (!StringUtils.isAlpha(employeeRequest.getFirstName()) ||
+                !StringUtils.isAlpha(employeeRequest.getLastName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        Employee employee = new Employee(employeeRequest.getFirstName(),
-                employeeRequest.getLastName(),
+        Employee employee = new Employee(
+                StringUtils.capitalize(employeeRequest.getFirstName()),
+                StringUtils.capitalize(employeeRequest.getLastName()),
                 employeeRequest.getDepartment(),
                 employeeRequest.getSalary());
-        this.employees.put(employee.getId(),employee);
+        this.employees.put(employee.getId(), employee);
         return employee;
     }
-    public int getSalarySum(){
+
+    public int getSalarySum() {
         return employees.values().stream()
                 .mapToInt(Employee::getSalary)
                 .sum();
     }
-    public Employee getEmployeeSalaryMin(){
+
+    public Employee getEmployeeSalaryMin() {
         return employees.values().stream()
                 .min(Comparator.comparing(Employee::getSalary))
                 .get();
     }
-    public Employee getEmployeeSalaryMax(){
+
+    public Employee getEmployeeSalaryMax() {
         return employees.values().stream()
                 .max(Comparator.comparing(Employee::getSalary))
                 .get();
     }
-    public List<Employee> getEmployeeHighSalary(){
+
+    public List<Employee> getEmployeeHighSalary() {
         double averageSalary = employees.values().stream()
                 .mapToDouble(Employee::getSalary)
                 .average()
                 .getAsDouble();
         return employees.values().stream()
-                .filter(e->e.getSalary()>averageSalary)
+                .filter(e -> e.getSalary() > averageSalary)
                 .collect(Collectors.toList());
-
-
 
     }
 }
